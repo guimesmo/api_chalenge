@@ -153,7 +153,7 @@ class UserSerializer(BaseSerializer):
         return value
 
     def generic_validate_hour(self, value):
-        if value is None:
+        if value is None or value == "":
             return
         try:
             value = int(value)
