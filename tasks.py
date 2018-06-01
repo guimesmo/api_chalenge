@@ -1,3 +1,5 @@
+import sys
+
 from models import Location, User
 from sqlalchemy import or_
 
@@ -42,3 +44,17 @@ def notify_users():
             if notification_required:
                 send_user_notification(user.id)
 
+
+def main():
+    action = sys.argv[0]
+    if action == "load_forecasts":
+        load_forecasts()
+    elif action == "notify_users":
+        notify_users()
+    else:
+        print("Invalid action")
+        exit(1)
+
+
+if __name__ == "__main__":
+    main()
