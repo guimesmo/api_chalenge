@@ -2,6 +2,8 @@ import csv
 import logging
 import threading
 
+import sys
+
 from models import User
 from serializers import UserSerializer, ValidationError
 
@@ -85,3 +87,23 @@ def export_users():
     with open(USER_OUTPUT_FILE_PATH, "w") as csvfile:
         wr = csv.writer(csvfile, delimiter=';', quotechar='"')
         wr.writerows(export_data)
+
+
+def main():
+    try:
+        action = sys.argv[1]
+    except IndexError:
+        print("Missing required param \"action\"")
+        exit(1)
+    if action == 'import':
+        import_users()
+    elif action == 'export':
+        export_users()
+    else:
+        print("INVALID ACTION %s" % action)
+        exit(1)
+
+
+if __name__ == '__main__':
+    main()
+
