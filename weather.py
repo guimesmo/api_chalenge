@@ -17,7 +17,8 @@ def get_forecast(lat, lon):
         "lat": lat,
         "lon": lon,
         "mode": "json",
-        "appid": APP_ID
+        "appid": APP_ID,
+        "cnt": 8
     }
 
     target_url = forecast_url + urlencode(params)
@@ -30,7 +31,33 @@ def get_forecast(lat, lon):
 
 
 class Forecast:
-    def __init__(self, lat, lon):
-        forecast_dict = get_forecast(lat, lon)
-        self.todays_forecast = forecast_dict['list'][0]['weather'][0]['main'].lower()
-        self.next_day_forecast = forecast_dict['list'][1]['weather'][0]['main'].lower()
+    _hourly_forecast = None
+
+    def __init__(self, lat, lon, forecast_dict=None):
+        """
+        Forecast interface to send next days forecasts
+        :param lat: float. Set None if has the forecast dict
+        :param lon: float. Set None if has the forecast dict
+        :param forecast_dict: the full payload. For tests or cache
+        """
+        if not forecast_dict:
+            forecast_dict = get_forecast(lat, lon)
+        self.forecast_dict = forecast_dict
+
+    @property
+    def hourly_forecast(self):
+        if not self._hourly_forecast:
+            self._hourly_forecast = self.load_hourly_forecast()
+        return self._hourly_forecast
+
+    def load_hourly_forecast(self):
+        forecast = {}
+        for item in self.forecast_dict['list']:
+            forecast[item['dt']] = item['weather'][0]['main'].lower()
+        return forecast
+
+    def for_timestamp(self, timestamp):
+        forecast = self.hourly_forecast
+        ts = [k for k in forecast.keys() if k < timestamp]
+        if ts:
+            return forecast[ts[-1]]

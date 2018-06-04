@@ -1,0 +1,82 @@
+{
+  "list": [
+    {
+      "dt": 1528092000,
+      "weather": [
+        {
+          "main": "Clouds"
+        }
+      ],
+      "rain": {}
+    },
+    {
+      "dt": 1528102800,
+      "weather": [
+        {
+          "main": "Rain"
+        }
+      ],
+      "rain": {},
+      "dt_txt": "2018-06-04 09:00:00"
+    },
+    {
+      "dt": 1528113600,
+      "weather": [
+        {
+          "main": "Clear"
+        }
+      ],
+      "rain": {},
+      "dt_txt": "2018-06-04 12:00:00"
+    },
+    {
+      "dt": 1528124400,
+      "weather": [
+        {
+          "main": "Clouds"
+        }
+      ],
+      "rain": {},
+      "dt_txt": "2018-06-04 15:00:00"
+    },
+    {
+      "dt": 1528135200,
+      "weather": [
+        {
+          "main": "Clouds"
+        }
+      ],
+      "rain": {},
+      "dt_txt": "2018-06-04 18:00:00"
+    },
+    {
+      "dt": 1528146000,
+      "weather": [
+        {
+          "main": "Clouds"
+        }
+      ],
+      "rain": {},
+      "dt_txt": "2018-06-04 21:00:00"
+    },
+    {
+      "dt": 1528156800,
+      "weather": [
+        {
+          "main": "Clouds"
+        }
+      ],
+      "temp_kf": 0
+    }
+  ],
+  "city": {
+    "id": 3467865,
+    "name": "Campinas",
+    "coord": {
+      "lat": -22.9056,
+      "lon": -47.0609
+    },
+    "country": "BR",
+    "population": 1031554
+  }
+}

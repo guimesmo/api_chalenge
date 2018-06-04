@@ -21,9 +21,7 @@ def load_forecasts():
 
 def notify_users():
     with app.app_context():
-        locations = db.session.query(Location).filter(
-            or_(Location.todays_forecast == "rain",
-                Location.next_day_forecast == "rain"))
+        locations = Location.query.filter(Location.hourly_forecast.contains("rain"))
 
         locations = {
             l.id: l for l in locations
@@ -35,9 +33,12 @@ def notify_users():
             notification_required = False
             if user.next_day_forecast_required():
                 notification_required = True  # if next day is required any result is valid
-            elif user.home_location_id in locations.keys() and locations[user.home_location_id].todays_forecast == 'rain':
+
+            elif user.home_location_id in locations.keys() and 'rain' in \
+                    locations[user.home_location_id].today_forecasts().values():
                 notification_required = True
-            elif user.work_location_id in locations.keys() and locations[user.work_location_id].todays_forecast == 'rain':
+            elif user.work_location_id in locations.keys() and 'rain' in \
+                    locations[user.work_location_id].today_forecasts().values():
                 notification_required = True
 
             # send notification if required

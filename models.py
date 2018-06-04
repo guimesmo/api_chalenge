@@ -1,4 +1,6 @@
-from datetime import datetime
+import json
+import datetime
+import time
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -13,8 +15,10 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     name = db.Column(db.String(120), nullable=False)
 
-    work_entering_hour = db.Column(db.Integer, nullable=True)
-    work_leaving_hour = db.Column(db.Integer, nullable=True)
+    monitor_start_hour = db.Column(db.String(5), nullable=True)
+    monitor_finish_hour = db.Column(db.String(5), nullable=True)
+
+    alert_time = db.Column(db.Integer, nullable=True)
 
     home_location_id = db.Column(db.Integer, db.ForeignKey('location.id'), nullable=False)
     home_location = db.relationship('Location', backref=db.backref('users_home', lazy=True),
@@ -30,8 +34,11 @@ class User(db.Model):
         return self.username
 
     def next_day_forecast_required(self):
-        if self.work_entering_hour and self.work_leaving_hour:
-            return self.work_entering_hour > self.work_leaving_hour
+        if self.monitor_start_hour and self.monitor_finish_hour:
+            time_tuple = lambda stime: datetime.time(*[int(t) for t in stime.split(":")])
+            monitor_start_hour = time_tuple(self.monitor_start_hour)
+            monitor_finish_hour = time_tuple(self.monitor_finish_hour)
+            return monitor_start_hour > monitor_finish_hour
         return False
 
 
@@ -41,8 +48,11 @@ class Location(db.Model):
     uf = db.Column(db.String(2), nullable=False)
     lat = db.Column(db.String(20))
     lon = db.Column(db.String(20))
+
     todays_forecast = db.Column(db.String(120))
     next_day_forecast = db.Column(db.String(120))
+
+    hourly_forecast = db.Column(db.Text())
     last_update = db.Column(db.DateTime, nullable=True)
 
     def load_lat_lon(self):
@@ -52,11 +62,29 @@ class Location(db.Model):
         self.lon = lat_lon['lng']
 
     def load_forecasts(self):
-        if self.last_update and self.last_update.date() == datetime.utcnow().date():  # no date change
-            return
         forecast = Forecast(self.lat, self.lon)
-        self.todays_forecast = forecast.todays_forecast
-        self.next_day_forecast = forecast.next_day_forecast
+        self.hourly_forecast = json.dumps(forecast.load_hourly_forecast())
+
+    def today_forecasts(self):
+        today = datetime.date.today()
+        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+        today_ts = int(time.mktime(today.timetuple()))
+        next_day_ts = int(time.mktime(tomorrow.timetuple()))
+
+        hourly_forecast = json.loads(self.hourly_forecast)
+
+        return {int(key): item for key, item in hourly_forecast.items() if (int(key) > today_ts < next_day_ts)}
+
+    def tomorrow_forecasts(self):
+        today = datetime.date.today()
+        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+        today_ts = int(time.mktime(today.timetuple()))
+        next_day_ts = int(time.mktime(tomorrow.timetuple()))
+
+        hourly_forecast = json.loads(self.hourly_forecast)
+
+        return {int(key): item for key, item in hourly_forecast.items() if (key > next_day_ts)}
+
 
 
 def get_location(city, uf):
