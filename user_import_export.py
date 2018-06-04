@@ -60,8 +60,8 @@ def import_users():
                 "home_city_uf": get_column(row, COL_HOME_UF),
                 "work_city_name": get_column(row, COL_WORK_CITY),
                 "work_city_uf": get_column(row, COL_WORK_UF),
-                "work_entering_hour": get_column(row, COL_WORK_ENTERING_HOUR),
-                "work_leaving_hour": get_column(row, COL_WORK_LEAVING_HOUR),
+                "monitor_start_hour": get_column(row, COL_WORK_ENTERING_HOUR),
+                "monitor_finish_hour": get_column(row, COL_WORK_LEAVING_HOUR),
             }
             process_row(index, data)
 
@@ -80,8 +80,8 @@ def export_users():
                 user.home_location.uf,
                 user.work_location.city_name if user.work_location else "",
                 user.work_location.uf if user.work_location else "",
-                user.work_entering_hour or "",
-                user.work_leaving_hour or "",
+                user.monitor_start_hour or "",
+                user.monitor_finish_hour or "",
             ]
             export_data.append(user_data)
     with open(USER_OUTPUT_FILE_PATH, "w") as csvfile:
