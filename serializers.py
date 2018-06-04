@@ -1,4 +1,5 @@
 import json
+import datetime
 
 from geolocation import LocationError
 from models import User, get_location, db
@@ -93,7 +94,7 @@ class UserSerializer(BaseSerializer):
 
     input_fields = [
         'username', 'name',
-        'work_entering_hour', 'work_leaving_hour',
+        'monitor_start_hour', 'monitor_finish_hour',
         'home_city_name', 'home_city_uf',
         'work_city_name', 'work_city_uf'
     ]
@@ -103,7 +104,7 @@ class UserSerializer(BaseSerializer):
     ]
 
     output_fields = [
-        'username', 'name', 'work_entering_hour', 'work_leaving_hour',
+        'username', 'name', 'monitor_start_hour', 'monitor_finish_hour',
         'home_location_name', 'work_location_name'
     ]
 
@@ -112,8 +113,8 @@ class UserSerializer(BaseSerializer):
             raise SerializerError("You must run the 'validate' method before create")
         instance = User(username=self.validated_data['username'],
                         name=self.validated_data['name'],
-                        work_entering_hour=self.validated_data.get('work_entering_hour'),
-                        work_leaving_hour=self.validated_data.get('work_leaving_hour'),
+                        monitor_start_hour=self.validated_data.get('monitor_start_hour'),
+                        monitor_finish_hour=self.validated_data.get('monitor_finish_hour'),
                         home_location_id=self.validated_data['home_location_id'],
                         work_location_id=self.validated_data.get('work_location_id')
                         )
@@ -127,7 +128,7 @@ class UserSerializer(BaseSerializer):
 
         self.instance.username = self.validated_data['username']
         self.instance.name = self.validated_data['name']
-        self.instance.work_entering_hour = self.validated_data.get('work_entering_hour')
+        self.instance.monitor_start_hour = self.validated_data.get('monitor_start_hour')
         self.instance.work_leaving_hour = self.validated_data.get('work_leaving_hour')
         self.instance.home_location_id = self.validated_data['home_location_id']
         self.instance.work_location_id = self.validated_data.get('work_location_id')
@@ -156,18 +157,16 @@ class UserSerializer(BaseSerializer):
         if value is None or value == "":
             return
         try:
-            value = int(value)
+            datetime.time(*([int(v) for v in value.split(":")]))
         except (ValueError, TypeError):
-            raise ValidationError("Invalid number %s" % value)
+            raise ValidationError("Invalid hour %s" % value)
 
-        if value < 0 or value > 23:
-            raise ValidationError("Invalid hour value %s" % value)
         return value
 
-    def validate_work_entering_hour(self, value):
+    def validate_monitor_start_hour(self, value):
         return self.generic_validate_hour(value)
 
-    def validate_work_leaving_hour(self, value):
+    def validate_monitor_finish_hour(self, value):
         return self.generic_validate_hour(value)
 
     def validate_home_location(self, data):
